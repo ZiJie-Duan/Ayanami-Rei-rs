@@ -47,8 +47,8 @@ fn main() {
         io::stdin().read_line(&mut input).unwrap();
         let input = input.trim();
 
-        let loc: Vec<u16> = input.split(" ")
-        .map(|v: &str| v.parse::<u16>().unwrap()).collect();
+        let loc: Vec<i16> = input.split(" ")
+        .map(|v: &str| v.parse::<i16>().unwrap()).collect();
 
         let buf: HIDBuffer = schema::AbslMouseBuf {
             x_position: loc[0],

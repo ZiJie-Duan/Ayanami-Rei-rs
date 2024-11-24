@@ -43,8 +43,8 @@ impl DeviceBuffer for RelaMouseBuf {
 #[derive(Default)]
 pub struct AbslMouseBuf {
     pub button_status: u8, // Button status
-    pub x_position: u16,   // Absolute position of X coordinate
-    pub y_position: u16,   // Absolute position of Y coordinate
+    pub x_position: i16,   // Absolute position of X coordinate
+    pub y_position: i16,   // Absolute position of Y coordinate
     pub v_wheel: i8,       // Change in vertical wheel
     pub h_wheel: i8,       // Change in horizontal wheel
 }
