@@ -10,9 +10,22 @@ use schema::HIDBuffer;
 
 mod device;
 mod schema;
+mod bt_mouse;
+mod config;
 
 fn main() {
-    let mut device_hid = device::Device::new();
+
+    env_logger::init();
+
+    let cfg = match config::load() {
+        Ok(cfg) => cfg,
+        Err(_) => return,
+    };
+
+    println!("{:?}", cfg);
+     
+    
+    //let mut device_hid = device::Device::new();
 
     // let kb = schema::KeyboardBuf {
     //     keys: [1, 1, 1, 1, 1, 1],
@@ -61,25 +74,25 @@ fn main() {
     // }
 
     
-    loop {
-        for i in 0..10 {
-            for j in 0..10 {
-                let x: i16 = (j as f32 * (3276.7 as f32)) as i16;
-                let y: i16 = (i as f32 * (3276.7 as f32)) as i16;
+    // loop {
+    //     for i in 0..10 {
+    //         for j in 0..10 {
+    //             let x: i16 = (j as f32 * (3276.7 as f32)) as i16;
+    //             let y: i16 = (i as f32 * (3276.7 as f32)) as i16;
 
-                let buf: HIDBuffer = schema::AbslMouseBuf {
-                    x_position: x,
-                    y_position: y,
-                    ..Default::default()
-                }
-                .into();
+    //             let buf: HIDBuffer = schema::AbslMouseBuf {
+    //                 x_position: x,
+    //                 y_position: y,
+    //                 ..Default::default()
+    //             }
+    //             .into();
             
-                device_hid.send(&buf);
+    //             device_hid.send(&buf);
 
-                std::thread::sleep(std::time::Duration::from_millis(1000 / 60));
-            }
-        }
-    }
+    //             std::thread::sleep(std::time::Duration::from_millis(1000 / 60));
+    //         }
+    //     }
+    // }
 
 
 }
