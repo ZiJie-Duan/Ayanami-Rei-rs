@@ -40,24 +40,46 @@ fn main() {
 
     // device_hid.send(&buf);
 
-    loop {
-        print!("x y >>");
-        io::stdout().flush().unwrap();
-        let mut input = String::new();
-        io::stdin().read_line(&mut input).unwrap();
-        let input = input.trim();
+    // loop {
+    //     print!("x y >>");
+    //     io::stdout().flush().unwrap();
+    //     let mut input = String::new();
+    //     io::stdin().read_line(&mut input).unwrap();
+    //     let input = input.trim();
 
-        let loc: Vec<i16> = input.split(" ")
-        .map(|v: &str| v.parse::<i16>().unwrap()).collect();
+    //     let loc: Vec<i16> = input.split(" ")
+    //     .map(|v: &str| v.parse::<i16>().unwrap()).collect();
 
-        let buf: HIDBuffer = schema::AbslMouseBuf {
-            x_position: loc[0],
-            y_position: loc[1],
-            ..Default::default()
-        }
-        .into();
+    //     let buf: HIDBuffer = schema::AbslMouseBuf {
+    //         x_position: loc[0],
+    //         y_position: loc[1],
+    //         ..Default::default()
+    //     }
+    //     .into();
     
-        device_hid.send(&buf);
+    //     device_hid.send(&buf);
+    // }
+
+    
+    loop {
+        for i in 0..10 {
+            for j in 0..10 {
+                let x: i16 = (j as f32 * (3276.7 as f32)) as i16;
+                let y: i16 = (i as f32 * (3276.7 as f32)) as i16;
+
+                let buf: HIDBuffer = schema::AbslMouseBuf {
+                    x_position: x,
+                    y_position: y,
+                    ..Default::default()
+                }
+                .into();
+            
+                device_hid.send(&buf);
+
+                std::thread::sleep(std::time::Duration::from_millis(1000 / 60));
+            }
+        }
     }
+
 
 }
