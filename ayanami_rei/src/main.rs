@@ -5,7 +5,7 @@
 // use std::thread;
 // use std::time::Duration;
 
-use std::io::{self, Write};
+use std::{fs::read, io::{self, Write}};
 use schema::HIDBuffer;
 
 mod device;
@@ -21,9 +21,19 @@ fn main() {
         Ok(cfg) => cfg,
         Err(_) => return,
     };
-
+    
     println!("{:?}", cfg);
-     
+
+    let mut bt_mouse_input = match bt_mouse::BtMouseInput::new(
+        &cfg.bt_input_device.mouse_path
+    ) {
+        Ok(m) => m,
+        Err(_) => return,
+    };
+
+    loop {
+        bt_mouse_input.fetch();
+    }
     
     //let mut device_hid = device::Device::new();
 
