@@ -1,6 +1,6 @@
 use log::debug;
 
-use crate::schema::{DeviceBuffer, HIDBuffer};
+use crate::usb_gadget::{DeviceBuffer, HIDBuffer};
 use std::{fs::File, io::Write};
 
 const KEYBOARD_PATH: &str = "/dev/hidg0";

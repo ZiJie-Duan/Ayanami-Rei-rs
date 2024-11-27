@@ -5,7 +5,8 @@ use std::io::{self, Read};
 use std::mem::size_of;
 use log::{error, debug};
 
-use crate::schema::{HIDBuffer, RelaMouseBuf};
+use crate::mouse::MouseIn;
+use crate::usb_gadget::{HIDBuffer, RelaMouseBuf};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -52,7 +53,7 @@ impl BtMouseInput {
             MouseInput::MoveY(v) => 
                 HIDBuffer::RelaMouse(
                     RelaMouseBuf{
-                        y_movement:(v.clamp(i8::MIN as i32, i8::MAX as i32) as f32 * 0.65) as i8,
+                        y_movement:(v.clamp(i8::MIN as i32, i8::MAX as i32) as f32 * 0.75) as i8,
                          ..Default::default()}
                 ),
             MouseInput::LeftButtonClick(v) => {
@@ -144,6 +145,17 @@ impl BtMouseInput {
                 error!("Error reading event: {}", e);
                 Err(e)
             }
+        }
+    }
+}
+
+impl MouseIn for BtMouseInput {
+    fn mouse_move(&mut self) -> (i32, i32) {
+        self.fetch();
+        match self.mouse_input {
+            MouseInput::MoveX(v) => return (v, 0),
+            MouseInput::MoveY(v) => return (0, v),
+            _ => return (0,0),
         }
     }
 }

@@ -22,6 +22,31 @@ impl Default for HidDevice {
     }
 }
 
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct HidMouseSetting {
+    pub x_speed: f32,
+    pub y_speed: f32,
+    pub x_screen_range: i32,
+    pub y_screen_range: i32,
+    pub x_hid_range: i32,
+    pub y_hid_range: i32,
+}
+
+impl Default for HidMouseSetting {
+    fn default() -> Self {
+        Self {
+            x_speed: 1.0,
+            y_speed: 1.0,
+            x_screen_range: 1920,
+            y_screen_range: 1080,
+            x_hid_range: 32000,
+            y_hid_range: 32000,
+        }
+    }
+}
+
+
 #[derive(Serialize, Deserialize, Debug)]
 pub struct BtInputDevice {
     pub mouse_path: String,
@@ -35,11 +60,35 @@ impl Default for BtInputDevice {
     }
 }
 
+
+#[derive(Serialize, Deserialize, Debug)]
+pub struct MouseSetting {
+    pub x_speed: f32,      // Mouse X Speed
+    pub y_speed: f32,      // Mouse Y Speed
+    pub x_range: i32,      // Mouse Movable Range, Equal to Screen Pixel Count
+    pub y_range: i32,      // Mouse Movable Range, Equal to Screen Pixel Count
+}
+
+
+impl Default for MouseSetting {
+    fn default() -> Self {
+        Self {
+            x_speed: 1.0,
+            y_speed: 1.0,
+            x_range: 1920,
+            y_range: 1080,
+        }
+    }
+}
+
+
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Config {
     pub debug: i8,
     pub hid_device: HidDevice,
+    pub hid_mouse_setting: HidMouseSetting,
     pub bt_input_device: BtInputDevice,
+    pub mouse_setting: MouseSetting,
 }
 
 pub fn load() -> Result<Config, Box<dyn std::error::Error>> {
