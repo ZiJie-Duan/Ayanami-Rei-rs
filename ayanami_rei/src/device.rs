@@ -1,3 +1,5 @@
+use log::debug;
+
 use crate::schema::{DeviceBuffer, HIDBuffer};
 use std::{fs::File, io::Write};
 
@@ -38,19 +40,19 @@ impl Device {
     pub fn send(&mut self, buf: &HIDBuffer) {
         match buf {
             HIDBuffer::Keyboard(buf) => {
-                println!(
+                debug!(
                     "Send to Keyboard {:?}",
                     Self::to_binary_string(buf.to_vec())
                 );
             }
             HIDBuffer::RelaMouse(buf) => {
-                println!(
+                debug!(
                     "Send to RelaMouse {:?}",
                     Self::to_binary_string(buf.to_vec())
                 );
             }
             HIDBuffer::AbslMouse(buf) => {
-                println!(
+                debug!(
                     "Send to AbslMouse {:?}",
                     Self::to_binary_string(buf.to_vec())
                 );

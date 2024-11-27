@@ -5,6 +5,8 @@ use std::io::{self, Read};
 use std::mem::size_of;
 use log::{error, debug};
 
+use crate::schema::{HIDBuffer, RelaMouseBuf};
+
 #[repr(C)]
 #[derive(Debug)]
 struct TimeVal {
@@ -38,19 +40,89 @@ pub struct BtMouseInput{
 }
 
 impl BtMouseInput {
+
+    pub fn into_hid_buf(&self) -> HIDBuffer{
+        match self.mouse_input {
+            MouseInput::MoveX(v) => 
+                HIDBuffer::RelaMouse(
+                    RelaMouseBuf{
+                        x_movement:(v.clamp(i8::MIN as i32, i8::MAX as i32) as f32 * 1.1) as i8, 
+                        ..Default::default()}
+                ),
+            MouseInput::MoveY(v) => 
+                HIDBuffer::RelaMouse(
+                    RelaMouseBuf{
+                        y_movement:(v.clamp(i8::MIN as i32, i8::MAX as i32) as f32 * 0.65) as i8,
+                         ..Default::default()}
+                ),
+            MouseInput::LeftButtonClick(v) => {
+                    if v {
+                        HIDBuffer::RelaMouse(
+                            RelaMouseBuf{button_status:1, ..Default::default()}
+                        )
+                    } else {
+                        HIDBuffer::RelaMouse(
+                            RelaMouseBuf{button_status:0, ..Default::default()}
+                        )
+                    }
+                },
+            MouseInput::RightButtonClick(v) => {
+                    if v {
+                        HIDBuffer::RelaMouse(
+                            RelaMouseBuf{button_status:2, ..Default::default()}
+                        )
+                    } else {
+                        HIDBuffer::RelaMouse(
+                            RelaMouseBuf{button_status:0, ..Default::default()}
+                        )
+                    }
+                },
+            _ => HIDBuffer::RelaMouse(
+                RelaMouseBuf::default()
+            ),
+        }
+    }
         
-    pub fn new(path:&str) -> Result<Self, ()> {
+    pub fn new(path:&str) -> Result<Self, io::Error> {
         Ok(Self {
             mouse_input: MouseInput::None,
             file: match File::open(path) {
                 Ok(file) => file,
                 Err(e) => {
                     error!("Failed to open Bluetooth mouse device file: {}", e);
-                    return Err(());
+                    return Err(e);
                 },
             },
             buffer: [0u8; std::mem::size_of::<InputEvent>()],
         })
+    }
+
+    fn decode(&mut self, event: InputEvent){
+        match event.type_ {
+            1 => match event.code {
+                0x110 => match event.value {
+                    0 => self.mouse_input = MouseInput::LeftButtonClick(false),
+                    1 => self.mouse_input = MouseInput::LeftButtonClick(true),
+                    _ => error!("unexpected left mouse button state")
+                },
+                0x111 => match event.value {
+                    0 => self.mouse_input = MouseInput::RightButtonClick(false),
+                    1 => self.mouse_input = MouseInput::RightButtonClick(true),
+                    _ => error!("unexpected left mouse button state")
+                }
+                _ => {},
+            }
+            2 => match event.code {
+                0x00 => {
+                    self.mouse_input = MouseInput::MoveX(event.value);
+                },
+                0x01 => {
+                    self.mouse_input = MouseInput::MoveY(event.value);
+                },
+                _ => {},
+            },
+            _ => {},
+        }
     }
 
     pub fn fetch(&mut self) -> Result<(), io::Error>{
@@ -64,6 +136,7 @@ impl BtMouseInput {
                 );
 
                 // decode event here
+                self.decode(event);
 
                 Ok(())
             },

@@ -13,96 +13,24 @@ mod schema;
 mod bt_mouse;
 mod config;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     env_logger::init();
 
-    let cfg = match config::load() {
-        Ok(cfg) => cfg,
-        Err(_) => return,
-    };
+    let cfg = config::load()?;
+
+    let mut device_hid = device::Device::new();
     
     println!("{:?}", cfg);
 
-    let mut bt_mouse_input = match bt_mouse::BtMouseInput::new(
+    let mut bt_mouse_input = bt_mouse::BtMouseInput::new(
         &cfg.bt_input_device.mouse_path
-    ) {
-        Ok(m) => m,
-        Err(_) => return,
-    };
+    )?;
 
     loop {
         bt_mouse_input.fetch();
+        let hidbuf: HIDBuffer = bt_mouse_input.into_hid_buf();
+        device_hid.send(&hidbuf);
     }
     
-    //let mut device_hid = device::Device::new();
-
-    // let kb = schema::KeyboardBuf {
-    //     keys: [1, 1, 1, 1, 1, 1],
-    //     ..Default::default()
-    // };
-
-    // let buf: HIDBuffer = kb.into();
-
-    // device_hid.send(&buf);
-
-    // let buf: HIDBuffer = schema::KeyboardBuf {
-    //     modifier: 1,
-    //     ..Default::default()
-    // }
-    // .into();
-
-    // device_hid.send(&buf);
-
-    // let buf: HIDBuffer = schema::RelaMouseBuf {
-    //     x_movement: 100,
-    //     y_movement: -100,
-    //     ..Default::default()
-    // }
-    // .into();
-
-    // device_hid.send(&buf);
-
-    // loop {
-    //     print!("x y >>");
-    //     io::stdout().flush().unwrap();
-    //     let mut input = String::new();
-    //     io::stdin().read_line(&mut input).unwrap();
-    //     let input = input.trim();
-
-    //     let loc: Vec<i16> = input.split(" ")
-    //     .map(|v: &str| v.parse::<i16>().unwrap()).collect();
-
-    //     let buf: HIDBuffer = schema::AbslMouseBuf {
-    //         x_position: loc[0],
-    //         y_position: loc[1],
-    //         ..Default::default()
-    //     }
-    //     .into();
-    
-    //     device_hid.send(&buf);
-    // }
-
-    
-    // loop {
-    //     for i in 0..10 {
-    //         for j in 0..10 {
-    //             let x: i16 = (j as f32 * (3276.7 as f32)) as i16;
-    //             let y: i16 = (i as f32 * (3276.7 as f32)) as i16;
-
-    //             let buf: HIDBuffer = schema::AbslMouseBuf {
-    //                 x_position: x,
-    //                 y_position: y,
-    //                 ..Default::default()
-    //             }
-    //             .into();
-            
-    //             device_hid.send(&buf);
-
-    //             std::thread::sleep(std::time::Duration::from_millis(1000 / 60));
-    //         }
-    //     }
-    // }
-
-
 }
