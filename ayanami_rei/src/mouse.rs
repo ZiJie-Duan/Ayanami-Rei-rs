@@ -1,16 +1,19 @@
-use log::error;
+use log::{debug, error};
 
 use crate::config::Config;
 
+pub enum MouseMoveBuf {
+    RelaMove(i32, i32),
+    AbslMove(i32, i32),
+}
+
 pub trait MouseIn {
-    fn mouse_move(&mut self) -> (i32, i32);
-    //fn mouse_set_loc(&self) -> (x, y);
+    fn mouse_move(&mut self) -> MouseMoveBuf;
 }
 
 
 pub trait MouseOut {
-    fn mouse_move(&mut self, x:i32, y:i32);
-    //fn mouse_set_loc(&self) -> (x, y);
+    fn mouse_move(&mut self, mouse_move_buf: MouseMoveBuf);
 }
 
 
@@ -41,8 +44,10 @@ impl Mouse {
     }
 
     pub fn move_loc(&mut self, x:i32, y:i32){
-        self.x_position = (self.x_position as f32 + x as f32 * self.x_speed).clamp(0.0, self.x_range as f32) as i32;
-        self.y_position = (self.y_position as f32 + x as f32 * self.y_speed).clamp(0.0, self.y_range as f32) as i32;
+        let x = x as f32;
+        let y = y as f32;
+        self.x_position = (self.x_position + x*self.x_speed).clamp(0.0, self.x_range as f32) as i32;
+        self.y_position = (self.y_position + x*self.y_speed).clamp(0.0, self.y_range as f32) as i32;
     }
 
 
@@ -55,10 +60,10 @@ impl Mouse {
         }
     }
 
-
     pub fn update(&mut self){
         let (x, y) = self.obj_in.mouse_move();
         //self.move_loc(x, y);
+        debug!("Mouse Position x:{}, y:{}", self.x_position, self.y_position);
         self.obj_out.mouse_move(x, y);
 
     }

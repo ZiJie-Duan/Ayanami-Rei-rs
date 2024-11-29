@@ -172,8 +172,6 @@ impl Device {
            HIDBuffer::AbslMouse(buf) => self.abs_mouse.write_all(&(buf.to_vec())).unwrap(),
         }
     }
-
-
     
     fn map_loc(&self, x: i32, y: i32) -> (i32, i32) {
         ((x as f32 * self.x_map_rate) as i32, (y as f32 * self.y_map_rate) as i32)
